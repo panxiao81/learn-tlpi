@@ -126,7 +126,7 @@ char *strerror(int errnum);
 
 有些库函数返回错误的方式与系统调用完全相同，有些返回的值不同，但对 `errno` 的对待方式相同，而有些函数则完全不使用 `errno` 进行错误处理
 
-#### 可移植性问题
+### 可移植性问题
 
 系统调用和库函数 API 的特性受标准影响，这些有一部分是 SUS 标准规定的，还有一些是 BSD 和 SVR4 的事实标准
 
@@ -160,7 +160,7 @@ typedef int pid_t
 
 过去曾规定在使用规范的函数前必须包含 `sys/types.h`，但现代 Unix 实现中一般不需要特地包含，现代 Unix 标准中也删去了这个规定。
 
-#### 习题
+### 习题
 
 根据 `reboot(2)` 可以看到 reboot syscall 需要两个 Magic Number，第一个参数需要 `LINUX_REBOOT_MAGIC1`, 他的值为 `0xfee1dead`，这非常的极客笑话。
 
