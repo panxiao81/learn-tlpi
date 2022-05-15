@@ -2,7 +2,9 @@ site_name: TLPI 笔记
 theme:
   name: material
   language: zh
-repo_url: https://github.com/panxiao81/learn-tlpi.git
+  icon:
+    repo: fontawesome/brands/github
+repo_url: https://github.com/panxiao81/learn-tlpi
 repo_name: panxiao81/learn-tlpi
 nav:
   - README: index.md
