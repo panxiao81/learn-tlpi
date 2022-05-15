@@ -1,0 +1,12 @@
+site_name: TLPI 笔记
+theme:
+  name: material
+  language: zh
+repo_url: https://github.com/panxiao81/learn-tlpi
+repo_name: panxiao81/learn-tlpi
+nav:
+  - README: index.md
+  - 环境: environment-preparing.md
+  - 第三章-系统编程概念: chap3.md
+
+
