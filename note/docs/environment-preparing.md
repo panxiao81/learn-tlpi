@@ -12,7 +12,10 @@ wget https://man7.org/tlpi/code/download/tlpi-220505-dist.tar.gz
 tar -xf tlpi-220505-dist.tar.gz && rm -rf tlpi-220505-dist.tar.gz
 ```
 
-You need to unarchive it in UNIX-Like system since there's some symbolic link, and I also use symbolic link to link the lib folder to my source code.
+and I also provide a Python scripts for automatically get this job done.
+
+You need to unarchive it in UNIX-Like system since there's some symbolic link, and I also use symbolic link to link the `lib` folder to my source code.
+
 and also, you should compile and run these code in Linux, for these code is the LINUX PROGRAMMING, of course.
 
 Download the source code from author's website. According to the README file, we need to install some header file package.
@@ -38,4 +41,4 @@ make all
 
 If success, you are ready to go.
 
-The source code what I write is placed at `/src`, and all the source file appeared in the note will use `/src` as the root directory.
+The source code what I've written is placed at `src/`, and all the source file appeared in the note will use `src/` as the root directory.

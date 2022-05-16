@@ -7,3 +7,13 @@ Cause I'm reading the Chinese version of the book, the note is mainly be written
 Still work in progress.
 
 The original example source code and header file could be downloaded at [auther's website](https://man7.org/tlpi/code/index.html)
+
+You could clone the whole repository and compile the code yourself.
+
+```shell
+$ git clone https://github.com/panxiao81/learn-tlpi
+$ sudo apt install build-essential libcap-dev libacl1-dev libselinux1-dev libseccomp-dev gcc-multilib
+$ cd learn-tlpi && make
+```
+
+The source code I've written is under `src/` folder.

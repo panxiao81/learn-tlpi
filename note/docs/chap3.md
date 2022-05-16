@@ -162,6 +162,8 @@ typedef int pid_t
 
 ### 习题
 
+code: `c3/reboot.c`
+
 根据 `reboot(2)` 可以看到 reboot syscall 需要两个 Magic Number，第一个参数需要 `LINUX_REBOOT_MAGIC1`, 他的值为 `0xfee1dead`，这非常的极客笑话。
 
 第二个 Magic Number 可以取三个值，这三个值转换成 16 进制后是 Linus 和三位千金的生日的样子。
