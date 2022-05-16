@@ -1,9 +1,11 @@
 all: build example
 
-build:
+build: download
 	cd src && make
-example:
+example: download
 	cd tlpi-dist && make
+download: download-code.py
+	python3 download-code.py
 venv: requirements.txt
 	test -d venv || python3 -m venv venv
 	. venv/bin/activate; pip install -r requirements.txt
