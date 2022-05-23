@@ -2,3 +2,4 @@ tlpi-dist/
 .DS_Store
 .idea/
 venv/
+.vscode
