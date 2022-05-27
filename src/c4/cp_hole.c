@@ -15,7 +15,7 @@ void help()
         "\t-h\t display this help");
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
     int opt, fd1, fd2, numRead;
     char buf[BUF_SIZE];
@@ -99,7 +99,7 @@ int main(int argc, char const *argv[])
     }
     if (numRead == -1)
     {
-        perror(read);
+        perror("read");
         exit(EXIT_FAILURE);
     }
     if (close(fd1) == -1)

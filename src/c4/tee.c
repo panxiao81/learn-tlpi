@@ -17,7 +17,7 @@ void help()
         "\t-h\t display this help");
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
     int opt, append = 0, fd, numRead;
     void *buf;
