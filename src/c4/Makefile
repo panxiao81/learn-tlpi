@@ -6,17 +6,16 @@ ifndef CC
 CC := cc
 endif
 
-BIN = tee cp_hole
-OBJECT := tee.o cp_hole.o
+SRCS = $(wildcard *.c)
+
+PROGS = $(patsubst %.c,%,$(SRCS))
 TLPI_LIB = ../../tlpi-dist/libtlpi.a
 
-all:$(BIN)
+all: $(PROGS)
 
-$(BIN):$(OBJECT) $(TLPI_LIB) 
-	$(CC) $< $(TLPI_LIB) -o $@ 
+%: %.c 
+	$(CC) $(CFLAGS) $< $(TLPI_LIB) -o $@ 
 
-%.o : %.c
-	$(CC) -c $(CFLAGS) $< -o $@
-
+.PHONY: clean
 clean:
-	-rm *.o $(BIN)
+	rm -f $(PROGS)

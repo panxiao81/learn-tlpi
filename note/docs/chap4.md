@@ -155,7 +155,7 @@ argp 可以传入多个参数，可以是任意数据类型，根据 `request` �
 
 ### tee
 
-code: c4/tee.c
+code: [c4/tee.c](https://github.com/panxiao81/learn-tlpi/blob/master/src/c4/tee.c)
 
 一道简单的综合应用题目。
 
@@ -183,7 +183,7 @@ if (optind < argc)
 
 ### cp_hole
 
-code: c4/cp_hole.c
+code: [c4/cp_hole.c](https://github.com/panxiao81/learn-tlpi/blob/master/src/c4/cp_hole.c)
 
 可以用 `dd` 创建一个带有文件空洞的文件用于测试
 

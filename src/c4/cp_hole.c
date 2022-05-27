@@ -32,6 +32,7 @@ int main(int argc, char const *argv[])
         default:
             usageErr("Can't not parse arguments\n");
             help();
+            exit(EXIT_FAILURE);
             break;
         }
     }
