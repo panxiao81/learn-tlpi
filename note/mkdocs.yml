@@ -47,4 +47,4 @@ nav:
   - 第四章-文件 I/O：通用的 I/O 模型: chap4.md
   - 第五章-深入探究文件 I/O: chap5.md
   - 第六章-进程: chap6.md
-
+  - 第七章-内存分配: chap7.md
