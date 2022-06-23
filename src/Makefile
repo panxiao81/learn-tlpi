@@ -3,7 +3,9 @@ DIRS = 	lib \
 	c4 \
 	c5 \
 	c6 \
-	c7
+	c7 \
+	c8 \
+	c9
 
 # The "namespaces" and "seccomp" directories are deliberately excluded from
 # the above list because much of the code in those directories requires a
