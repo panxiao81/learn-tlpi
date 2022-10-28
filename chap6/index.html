@@ -1,0 +1,954 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1">
+    
+    
+      
+        <title>第六章-进程 - TLPI 笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.69437709.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cheaper-6" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="TLPI 笔记" class="md-header__button md-logo" aria-label="TLPI 笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TLPI 笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第六章-进程
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/panxiao81/learn-tlpi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    panxiao81/learn-tlpi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="TLPI 笔记" class="md-nav__button md-logo" aria-label="TLPI 笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    TLPI 笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/panxiao81/learn-tlpi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    panxiao81/learn-tlpi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        README
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../environment-preparing/" class="md-nav__link">
+        环境
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap3/" class="md-nav__link">
+        第三章-系统编程概念
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap4/" class="md-nav__link">
+        第四章-文件 I/O：通用的 I/O 模型
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap5/" class="md-nav__link">
+        第五章-深入探究文件 I/O
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          第六章-进程
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        第六章-进程
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    词汇速查
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    笔记
+  </a>
+  
+    <nav class="md-nav" aria-label="笔记">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    进程号和父进程号
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    进程的内存布局
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    虚拟内存管理
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    栈和栈帧
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    命令行参数
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    环境列表
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    非局部跳转
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    练习
+  </a>
+  
+    <nav class="md-nav" aria-label="练习">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#6-1" class="md-nav__link">
+    6-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-2" class="md-nav__link">
+    6-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-3" class="md-nav__link">
+    6-3
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap7/" class="md-nav__link">
+        第七章-内存分配
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap8/" class="md-nav__link">
+        第八章-用户和组
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap9/" class="md-nav__link">
+        第九章-进程凭证
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap10/" class="md-nav__link">
+        第十章-时间
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    词汇速查
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    笔记
+  </a>
+  
+    <nav class="md-nav" aria-label="笔记">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    进程号和父进程号
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    进程的内存布局
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    虚拟内存管理
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    栈和栈帧
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    命令行参数
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    环境列表
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    非局部跳转
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    练习
+  </a>
+  
+    <nav class="md-nav" aria-label="练习">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#6-1" class="md-nav__link">
+    6-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-2" class="md-nav__link">
+    6-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-3" class="md-nav__link">
+    6-3
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/panxiao81/learn-tlpi/edit/master/docs/chap6.md" title="编辑此页" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+<h1 id="cheaper-6">Cheaper 6 进程<a class="headerlink" href="#cheaper-6" title="Permanent link">&para;</a></h1>
+<h2 id="_1">词汇速查<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ul>
+<li>进程 process</li>
+<li>用户内存空间 user-space memory</li>
+<li>进程号 process ID</li>
+<li>父进程号 parent process ID</li>
+<li>段 segment</li>
+<li>栈：stack</li>
+<li>栈帧：stack frames</li>
+<li>堆：heap</li>
+<li>堆顶: program break</li>
+<li>不可重入的: nonreentrant</li>
+<li>重入：reentrancy</li>
+<li>访问局部性：locality of reference</li>
+<li>空间局限性：Spatial locality</li>
+<li>时间局部性：Temporal locality</li>
+<li>驻留集：resident set</li>
+<li>页面错误：page fault</li>
+<li>页表：page table</li>
+<li>虚拟地址空间：virtual address space</li>
+<li>栈指针：stack pointer</li>
+<li>环境列表：environment list</li>
+</ul>
+<h2 id="_2">笔记<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>进程是一个可执行文件的实例，换言之，实际运行中的程序称为进程。</p>
+<p>程序是包含一系列信息的文件。包括</p>
+<ul>
+<li>二进制格式标识：早年为汇编输出 a.out，COFF，现在一般使用 ELF 格式</li>
+<li>机器语言指令</li>
+<li>程序入口地址</li>
+<li>数据：包含变量初始化的值和程序使用的字面常量值</li>
+<li>符号表及重定向表：描述程序中函数和变量的位置和名称，用于调试和运行时的符号解析（动态链接）</li>
+<li>共享库和动态链接信息：列出程序运行时需要使用的共享库，以及加载共享库的动态链接器的路径</li>
+<li>其他信息</li>
+</ul>
+<p>一个程序可以创建多个进程，许多进程可以是同一个程序。</p>
+<p>从内核的角度，进程由用户内存空间和一些内核数据结构构成。用户内存空间包含程序代码及代码使用的变量，内核数据结构维护进程状态信息。内核数据结构包括与进程相关的标识号，虚拟内存表，打开文件的描述符表，信号传递及处理的信息，进程资源的使用与限制，当前的工作目录和大量的其他信息。</p>
+<h3 id="_3">进程号和父进程号<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>每个进程都有一个进程号 (PID)，进程号是一个正数，用于唯一标识系统中的某个进程。</p>
+<p><code>getpid()</code> 返回当前调用的进程的进程号</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">pid_t</span><span class="w"> </span><span class="n">getpid</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p>除了个别特殊的进程（如 <code>init</code>) 以外， 进程号和程序没有任何关系。</p>
+<p>Linux 内核的进程号大小限制可以从 <code>/proc/sys/kernel/pid_max</code> 中查看，新进程创建时，内核将按顺序将下一个可用的 PID 分配给进程，当进程号达到限制时，内核将 reset 计数器。</p>
+<p>每个进程有一个创建自己的父进程，使用系统调用 <code>getppid()</code> 可查看。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">pid_t</span><span class="w"> </span><span class="nf">getppid</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>每个进程的父进程号反映了系统进程间的树状关系。每个进程最终都能归宿到 PID 为 1 的进程 init 。使用 <code>pstree(1)</code> 可查看系统进程树。</p>
+<p>如果子进程的父进程终止，则子进程会变成孤儿进程，<code>init</code> 进程就会收养该进程，该进程对 <code>getppid()</code> 的调用将返回 1.</p>
+<p>通过 <code>/proc/PID/status</code> 中的 PPid 字段，也可获知每个进程的父进程。</p>
+<h3 id="_4">进程的内存布局<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>每个进程的内存由多个部分组成，称之为<code>段</code></p>
+<ul>
+<li>文本段：包含进程运行的机器语言命令，只读，可共享，同一个程序可以共享同一文本段内存</li>
+<li>已初始化数据段：又名用户初始化数据段 (user-initialized data segment)，包含显式初始化的全局变量和静态变量。</li>
+<li>未初始化数据段：又名零初始化数据段 (zero-initialized data segment)，包含未进行显式初始化的全局变量和静态变量。程序启动前该段被初始化为 0。历史上该段被称作 BSS 段，且程序在硬盘存储时不需要对该段分配硬盘空间，只需要记录未初始化数据段的位置和所需大小，在运行时再分配空间</li>
+<li>栈：一个动态增长和收缩的段，由栈帧组成。系统为每个当前调用的函数分配一个栈帧，栈帧中存储了函数的局部变量，实参和返回值。</li>
+<li>堆：在运行时动态分配内存的一块区域，堆顶称作 program break.</li>
+</ul>
+<p>此处讨论的段为操作系统中虚拟内存的概念，而非硬件体系中的概念。</p>
+<p>有时函数返回的指针指向的内存是静态分配的，即内存可能分配在已初始化或未初始化数据段中。即若返回的内容存在于静态的内存中，则下一次对该函数的调用可能会覆盖上一次的结果。称作该函数 <code>不可重入</code></p>
+<p>大多 UNIX 实现提供了三个全局符号来获取相应文本段的地址，但该做法未经 SUSv3 标准化</p>
+<p>要使用该符号需先显式声明</p>
+<div class="highlight"><pre><span></span><code><span class="k">extern</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">etext</span><span class="p">,</span><span class="w"> </span><span class="n">edata</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">;</span><span class="w"></span>
+<span class="c1">// 分别为程序文本段，已初始化数据段和未初始化数据段结尾处下一字节。可使用取地址符获取地址。</span>
+</code></pre></div>
+<h3 id="_5">虚拟内存管理<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>现代操作系统基本都使用了虚拟内存管理技术。</p>
+<p>大多程序体现了两种类型的访问局部性:</p>
+<ul>
+<li>空间局部性：程序倾向于访问在最近访问过的内存地址附近的内存。</li>
+<li>时间局部性：程序倾向于在不久的将来再次访问最近刚访问过的内存。（由于循环）</li>
+</ul>
+<p>因此，即便只有部分地址空间真正存在于 RAM 中，程序仍然可以运行。</p>
+<p>虚拟内存即将程序使用的内存分割成小的，固定大小的内存页 (page) 单元，将 RAM 划分成一系列与虚拟内存页大小相同的页帧。每个程序在特定时间内只有部分页需要驻留在物理内存中，这些页即为<code>驻留集</code>。程序未使用的页拷贝存放在交换区中 (swap area)，仅在需要时才会载入内存。若进程要访问的页面目前未驻留在物理内存中，会发生页面错误，此时内核挂起进程，从磁盘的交换区中将该页面载入内存。</p>
+<p>通常，x86_32 平台页大小为 4096 字节。若 CPU 支持且系统配置使用可以调用大页。</p>
+<p>内核会为进程维护一张页表，该表描述每个内存页在进程虚拟地址空间的位置。每个条目要么指出一个页在内存中的位置，要么指出当前驻留在硬盘上。</p>
+<p>可能存在大段虚拟地址空间未被使用，故也无必要维护其页表条目，但当进程试图访问无页表条目对应的内存时，进程将收到一个 SIGSEGV 信号。</p>
+<p>进程的有效虚拟地址范围也会在进程的生命周期中发生变化，例如：</p>
+<ul>
+<li>由于栈向下增长超出之前达到过的位置</li>
+<li>当在堆中分配或释放内存时</li>
+<li>当调用 <code>shmat()</code> 连接 SysV 共享内存区时，或调用 <code>shmdt()</code> 脱离共享内存区时。</li>
+<li>当调用 <code>mmap()</code> 创建内存映射调用 <code>munmap()</code> 解除内存映射时。</li>
+</ul>
+<p>虚拟内存带来了许多优点：</p>
+<ul>
+<li>进程与进程间，进程与内核间互相隔离，一个进程不能读写另一个进程或内核的内存。</li>
+<li>两个或更多进程可以在特定条件下共享内存。</li>
+<li>便于实现内存保护机制</li>
+<li>程序员和编译器，链接器等无需关注程序在 RAM 中的实际物理布局</li>
+<li>由于需要实际驻留在内存中的只是程序的一部分，因此程序加载和运行的速度会提升，且进程对内存的占用可超出物理 RAM 容量</li>
+<li>每个进程使用的 RAM 减少，RAM 中可同时容纳更多进程，提升了 CPU 的利用率</li>
+</ul>
+<h3 id="_6">栈和栈帧<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p>栈通常在流行的计算机体系结构中驻留在内存的高端并向下增长（朝着堆的方向），并存在一个专用的寄存器<code>栈指针</code>用于追踪当前栈顶。每次调用函数时，在栈上分配新的一个帧，当函数返回时再将此帧移去。</p>
+<p>在多数操作系统的实际实现中，释放栈帧后栈的大小并不会减少，在分配新的栈帧时会重新利用这些内存。以上的讨论只是逻辑上的。</p>
+<p>有时也称这里的栈为用户栈 (user stack)，因每个进程保留在内核中的内存区域称为内核栈，且内核在处理系统调用时由于内存保护机制的存在无法使用用户栈，只能使用预留的内核栈。</p>
+<p>每个用户栈帧包括</p>
+<ul>
+<li>函数实参和局部变量</li>
+<li>函数调用的链接信息：每个函数需要用到一些 CPU 寄存器，当函数调用另一函数时，会在被调函数的栈帧中保存现在寄存器的副本，以便函数在返回时能为函数调用者将寄存器恢复原状</li>
+</ul>
+<p>因函数能嵌套调用，因此栈中可能存在多个栈帧，若一个函数递归调用，则函数在栈中会存在多个栈帧。</p>
+<h3 id="_7">命令行参数<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p>C 语言程序使用 <code>main()</code> 函数作为程序的入口点，执行程序时，命令行参数通过两个入参传递给 <code>main()</code> 函数，第一个参数 <code>int argc</code> 表示命令行参数的个数，第二个参数 <code>char *argv[]</code> 是一个指向命令行参数的指针的数组，每一个参数是以空字符结尾的一个字符串。第一个字符串，即 <code>argv[0]</code> 指向的通常是该程序的名称，<code>argv</code> 的指针列表以 NULL 指针结尾，即 <code>argv[argc] = NULL</code></p>
+<p><code>argv[0]</code> 包含了调用程序的名称，例如 busybox 这类单文件打包的二进制即使用了这个技巧，通过 <code>argv[0]</code> 判断不同的名称跳转到不同的实际命令。</p>
+<p>由于 <code>argv</code> 列表以 NULL 终止，可以将其用于循环的边界判断：</p>
+<div class="highlight"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">p</span><span class="p">;</span><span class="w"></span>
+<span class="k">for</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">argv</span><span class="p">;</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="n">p</span><span class="o">++</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">puts</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>也可以使用 <code>argc</code> 来循环：</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">argc</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">puts</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<p>参数机制的问题是他仅限 <code>main()</code> 函数可用，在保证移植性的情况下，若要保证命令行参数可被其他函数使用，需要将 <code>argv</code> 以参数形式传递给函数，或是设置一个指向 <code>argv</code> 的全局变量。</p>
+<p>还有一些不可移植的方法如下：</p>
+<ul>
+<li>Linux 中可使用 <code>/proc/PID/cmdline</code> 读取任意进程的命令行参数，每个参数以空字节终止。</li>
+<li>GNU C 库提供了两个全局变量，可通过全局变量访问调用程序时的程序名，<code>program_invocation_name</code> 全局变量提供了用于调试程序的完整路径名，<code>program_invocation_short_name</code> 提供了不含完整目录的程序名称本身。定义 <code>_GNU_SOURCE</code> 宏后即可从 <code>errno.h</code> 中获得这两个全局变量的声明。</li>
+</ul>
+<p><code>argv</code> 和保存环境列表的 <code>environ</code> 数组，以及这些参数指向的字符串都驻留在进程栈上一个单一，连续的内存区域。该区域有大小上限，标准规定了最小上限至少为 4096 字节，但多数系统远大于这个设定。</p>
+<p>可以使用 <code>getopt()</code> 函数解析命令行选项，注意这个库函数仅定义在 UNIX 标准中。</p>
+<h3 id="_8">环境列表<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p>每个进程都有与其相关的称为环境列表的字符串数组。也简称为环境 <code>environment</code>。每个字符串都以 <code>name=value</code> 的形式定义。将环境列表中的名称称为环境变量。</p>
+<p>新的进程在创建时会继承父进程的环境副本。这也是一种原始的进程间通信方式，环境可将信息从父进程传递给子进程，但只有子进程在创建时才能获得父进程的拷贝，这个信息传递因此是单向的，一次性的。进程创建完毕后，子进程和父进程都可以改变他们的环境变量，且改变的环境变量不再被对方可见。</p>
+<p>可以设置环境变量来改变一些库函数的行为。</p>
+<p>多数 Shell （当然包括 bash）使用 <code>export</code> 向环境里添加变量值：</p>
+<div class="highlight"><pre><span></span><code><span class="nv">SHELL</span><span class="o">=</span>/bin/bash
+<span class="nb">export</span> SHELL
+</code></pre></div>
+<p>在 <code>bash</code> 和 <code>ksh</code> 中，可以写作：</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">SHELL</span><span class="o">=</span>/bin/bash
+</code></pre></div>
+<p>在 <code>csh</code> 中，需要使用 <code>setenv</code> 命令</p>
+<div class="highlight"><pre><span></span><code>setenv SHELL /bin/bash
+</code></pre></div>
+<p>以上将一个值永久添加到当前 Shell 环境中，此 Shell 之后创建的所有进程都继承此环境，可以使用 <code>unset</code> 撤销一个环境变量，<code>csh</code> 中则使用 <code>unsetenv</code>。</p>
+<p>在 <code>bash</code> 及其兼容的 Shell 中，可向执行的应用程序环境中添加一个变量，而不影响当前环境</p>
+<div class="highlight"><pre><span></span><code><span class="nv">NAME</span><span class="o">=</span>value program
+</code></pre></div>
+<p><code>printenv</code> 显示当前环境列表。</p>
+<p>环境列表的排列无序。</p>
+<p>通过 <code>/proc/PID/environ</code> 可访问任意进程的环境列表。每对以空字符终止。</p>
+<p>在 C 程序中可使用全局变量 <code>char **environ</code> 访问环境列表。<code>environ</code> 与 <code>argv</code> 类似，指向了一个以 NULL 结尾的指针列表，每个指针指向一个以空字节结尾的字符串。</p>
+<p>可以通过声明 <code>main()</code> 中的第三个参数来访问环境列表，即</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">argv</span><span class="p">[],</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">envp</span><span class="p">[]);</span><span class="w"></span>
+</code></pre></div>
+<p>但这样一来变量的作用域在 <code>main()</code> 函数以内，且这个特性不包含在 SUSv3 标准内。</p>
+<p><code>getenv()</code> 从进程环境中检索某个值。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+
+<span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="nf">getenv</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>参数提供要查询的环境变量名，函数将返回相应的字符串指针。若不存在指定的环境变量，则 <code>getenv()</code> 返回 NULL。</p>
+<p>使用时有几个注意事项</p>
+<ul>
+<li>SUSv3 规定程序不能修改 <code>getenv()</code> 提供的字符串，由于大多实现中该字符串是环境中的一部分。若要修改值应使用 <code>setenv()</code> 或 <code>putenv()</code> 函数。</li>
+<li>SUSv3 允许 <code>getenv()</code> 使用静态分配的缓冲区返回执行结果，后续对 <code>getenv()</code>，<code>setenv()</code>, <code>putenv()</code> <code>unsetenv()</code> 的调用可重写该缓冲区。但 GNU C 库并没有使用静态缓冲区。</li>
+</ul>
+<p>使用 <code>putenv()</code> 可添加一新变量，或修改一个已经存在的变量值。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">putenv</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">string</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p>参数是一个指向形如 <code>name=value</code> 的字符串的指针。调用函数后，该字符串就直接成为了环境的一部分，即 <code>environ</code> 中的某一个元素的指向将直接指向 <code>string</code> 指针的地址，而非 <code>string</code> 参数指向的字符串的拷贝。因此若之后再修改 <code>string</code> 指向的字符串会影响进程的环境。也因此，<code>string</code> 指向的地址空间不应分配在栈上。</p>
+<p><code>putenv()</code> 函数调用失败返回非 0 值。</p>
+<p>GNU 版本还包含了一个非标准的扩展，若 <code>string</code> 参数不包含等号，则从环境列表中移除 <code>string</code> 命名的环境变量。</p>
+<p><code>setenv()</code> 可以代替 <code>putenv()</code> 函数，同样向环境中添加变量</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">setenv</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">overwrite</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p><code>setenv()</code> 会分配一段内存，将 <code>name</code> 和 <code>value</code> 指向的内容复制到该缓冲区。</p>
+<p>若 <code>name</code> 标识的变量已经存在，且 <code>overwrite</code> 值为 0，则 <code>setenv()</code> 不改变环境，若 <code>overwrite</code> 值为 0，则 <code>setenv()</code> 将改变环境中的值。</p>
+<p><code>unsetenv()</code> 从环境中移除 <code>name</code> 标识的变量</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">unsetenv</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p>有时需要完全清除整个环境，可以将 <code>environ</code> 赋值为 NULL 来清除环境。可使用 <code>clearenv()</code> 完成操作</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define _BSD_SOURCE  </span><span class="cm">/* Or #define _SVID_SOURCE */</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">clearenv</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p>调用 <code>setenv()</code> 和 <code>clearenv()</code> 确实会造成内存泄露。</p>
+<p><code>setenv()</code> 会分配一段缓冲区，其会称为环境的一部分。而 <code>clearenv()</code> 没有释放该缓冲区，若不停调用这两个函数确实会发生内存泄露。</p>
+<p>SUSv3 标准实际定义，若程序直接修改 <code>environ</code> 变量，则不对 <code>setenv()</code>，<code>unsetenv()</code> 和 <code>getenv()</code> 作出定义，<code>clearenv()</code> 的方式实际是不被标准允许的，标准规定的清空环境变量的方式是通过 <code>environ</code> 变量获取所有环境变量的名称，然后逐一使用 <code>unsetenv()</code> 移除环境变量。</p>
+<h3 id="_9">非局部跳转<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<p>C 和其他编程语言一样有 <code>goto</code> 关键字，但一直不被鼓励使用。但在特定的场合下 <code>goto</code> 也确实有他的用武之地。</p>
+<p>C 的 <code>goto</code> 不能从一个函数跳转到另一个函数，由于 C 中所有函数的作用域层级相同，给定两个函数时，编译器无法判断在调用函数 A 时函数 B 的栈帧是否在栈上，也就无法判断从 A 函数跳转到 B 函数是否可行。</p>
+<p>但偶尔还是有这种需求的。例如在一个深度嵌套调用的函数中发生了错误，此时需要放弃任务，从多层函数调用中返回。此时确实可以对每个函数都返回状态值，让函数的调用者做检查并处理，这是有效的且也是最好的方法。但有的时候直接从嵌套函数跳出会使编程更简单。</p>
+<p>此时，<code>setjmp()</code> 和 <code>longjmp()</code> 提供了这个功能。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;setjmp.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">setjmp</span><span class="p">(</span><span class="kt">jmp_buf</span><span class="w"> </span><span class="n">env</span><span class="p">)</span><span class="w"></span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">longjmp</span><span class="p">(</span><span class="kt">jmp_buf</span><span class="w"> </span><span class="n">env</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">vol</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<p><code>setjmp()</code> 为后续 <code>longjmp()</code> 调用确立了跳转的目标，即发起 <code>setjmp()</code> 调用的位置。从编码角度来说，调用 <code>longjmp()</code> 之后就和第二次调用 <code>setjmp()</code> 一样。通过查看 <code>setjmp()</code> 的返回值即可区分 <code>setjmp</code> 的调用是初始返回（即设立跳转目标的第一次调用）还是第二次返回（即通过 <code>longjmp()</code> 跳转后回到 <code>setjmp()</code> 的位置)。初始返回值为 0，后续的返回值为 <code>longjmp()</code> 调用中 <code>val</code> 参数指定的任意值，可以使用这个特性来判断出程序跳至同一目标的不同起跳位置。特殊的，若 <code>val</code> 参数设为 0，则 <code>longjmp()</code> 会将其替换为 1 以便与初次返回区分开。</p>
+<p><code>setjmp()</code> 函数将当前进程环境的各种信息保存到 <code>env</code> 中，调用 <code>lomgjmp()</code> 时需指定相同的 <code>env</code> 变量。自然，由于调用处于不同的函数，因此 <code>env</code> 应设为全局变量，或作为函数的参数传递。</p>
+<p>SUSv3 和 C99 规定了 <code>setjmp()</code> 的使用语境</p>
+<ul>
+<li>构成选择或迭代语句中 (if, switch, while 等)的整个表达式</li>
+<li>作为一元操作符 <code>!</code> 的操作对象，其最终的表达式构成了选择或迭代控制语句的整个表达式</li>
+<li>作为比较操作的一部分，另一个对象必须是一个整数常量表达式，且最终的表达式构成选择或迭代语句的整个控制表达式</li>
+<li>作为独立的函数调用，且未嵌入到更大的表达式中。</li>
+</ul>
+<p>注意，赋值语句不在上述之列，即形如 <code>s = setjmp(env);</code> 是不符合标准的。</p>
+<p>由于 <code>setjmp()</code> 作为一个常规的函数实现无法保证拥有足够的信息来保存所有的寄存器值和封闭表达式中用到的临时栈的位置，以便于在 <code>longjmp()</code> 调用后此类信息能正常恢复，因此只能在足够简单且无需临时存储的表达式中调用 <code>setjmp()</code></p>
+<p><code>longjmp()</code> 函数不能跳转到一个已经返回的函数中，因为当函数返回时，函数所使用的栈已经被回收即不再存在，此时程序将跳转到一个不存在的栈位置。程序可能会崩溃，也可能引起调用与返回间的死循环，程序就像真的从一个未执行的函数中返回了。</p>
+<p>在 SUSv3 中规定如果从嵌套的信号处理器中调用 <code>longjmp()</code> 则行为未定义。</p>
+<p>由于 <code>setjmp()</code> 和 <code>longjmp()</code> 的跳转操作在运行时才能正确确立和运行，编译器优化时无法考虑，某些 ABI 接口又要求 <code>longjmp()</code> 恢复先前 <code>setjmp()</code> 调用所保存的 CPU 寄存器副本，此时可能会导致被优化的变量被赋予错误的值。此时应将调用 <code>setjmp()</code> 中涉及的变量使用 <code>volatile</code> 关键字声明，让编译器不对此变量进行优化。</p>
+<p>在 gcc 中，加入 <code>-Wextra</code> 可输出有用的警告。</p>
+<p>显然，与 <code>goto</code> 的原因类似，在实际编程中应避免使用非局部跳转。</p>
+<h2 id="_10">练习<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<h3 id="6-1">6-1<a class="headerlink" href="#6-1" title="Permanent link">&para;</a></h3>
+<p>code: tlpi-dist/proc/mem_segments.c</p>
+<p>显然，该 <code>static char mbuf[10240000];</code> 的声明由于没有初始化，其被放入了未初始化数据段，程序编译时不会保存实际的数据，仅在运行时将其放入对应的内存位置并初始化。</p>
+<h3 id="6-2">6-2<a class="headerlink" href="#6-2" title="Permanent link">&para;</a></h3>
+<p>code: c6/bad_longjmp.c</p>
+<p>结果是由于访问了不存在的栈空间，返回了段错误。</p>
+<h3 id="6-3">6-3<a class="headerlink" href="#6-3" title="Permanent link">&para;</a></h3>
+<p>code: c6/setenv_unsetenv.c</p>
+<p>同样的，我没写测试，<code>main()</code> 函数只为了通过编译。</p>
+<p>这里面需要做的判断条件较多。</p>
+<p>比较麻烦的是 <code>unsetenv()</code> 在找到环境变量后需要把整个数组结构左移来删除元素。我猜测 <code>environ</code> 实际的实现应该也类似一个链表的结构，但 <code>putenv()</code> 给我们抽象掉了。</p>
+<p><code>setenv()</code> 实现时大可以使用之前实现的 <code>unsetenv()</code></p>
+
+
+
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="页脚" >
+      
+        
+        <a href="../chap5/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第五章-深入探究文件 I/O" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              第五章-深入探究文件 I/O
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../chap7/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第七章-内存分配" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              第七章-内存分配
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\s\\-\uff0c\u3002]+", "search.placeholder": "\u641c\u7d22", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version.title": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9c69f0bc.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

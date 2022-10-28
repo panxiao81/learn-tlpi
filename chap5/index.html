@@ -1,0 +1,1073 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1">
+    
+    
+      
+        <title>第五章-深入探究文件 I/O - TLPI 笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.69437709.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cheaper-5-io" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="TLPI 笔记" class="md-header__button md-logo" aria-label="TLPI 笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TLPI 笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第五章-深入探究文件 I/O
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/panxiao81/learn-tlpi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    panxiao81/learn-tlpi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="TLPI 笔记" class="md-nav__button md-logo" aria-label="TLPI 笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    TLPI 笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/panxiao81/learn-tlpi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    panxiao81/learn-tlpi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        README
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../environment-preparing/" class="md-nav__link">
+        环境
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap3/" class="md-nav__link">
+        第三章-系统编程概念
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap4/" class="md-nav__link">
+        第四章-文件 I/O：通用的 I/O 模型
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          第五章-深入探究文件 I/O
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        第五章-深入探究文件 I/O
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    词汇速查
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    笔记
+  </a>
+  
+    <nav class="md-nav" aria-label="笔记">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    原子性
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fcntl" class="md-nav__link">
+    文件控制 fcntl()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    文件描述符和打开文件的关系
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io" class="md-nav__link">
+    在文件特定偏移量的 I/O
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    分散输入和集中输出
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    截断文件
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io_1" class="md-nav__link">
+    非阻塞 I/O
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io_2" class="md-nav__link">
+    大文件 I/O
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#devfd" class="md-nav__link">
+    /dev/fd 目录
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    创建临时文件
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    习题
+  </a>
+  
+    <nav class="md-nav" aria-label="习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5-1" class="md-nav__link">
+    5-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-2" class="md-nav__link">
+    5-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-3" class="md-nav__link">
+    5-3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-4" class="md-nav__link">
+    5-4
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-5" class="md-nav__link">
+    5-5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-6" class="md-nav__link">
+    5-6
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-7" class="md-nav__link">
+    5-7
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap6/" class="md-nav__link">
+        第六章-进程
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap7/" class="md-nav__link">
+        第七章-内存分配
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap8/" class="md-nav__link">
+        第八章-用户和组
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap9/" class="md-nav__link">
+        第九章-进程凭证
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap10/" class="md-nav__link">
+        第十章-时间
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    词汇速查
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    笔记
+  </a>
+  
+    <nav class="md-nav" aria-label="笔记">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    原子性
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fcntl" class="md-nav__link">
+    文件控制 fcntl()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    文件描述符和打开文件的关系
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io" class="md-nav__link">
+    在文件特定偏移量的 I/O
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    分散输入和集中输出
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    截断文件
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io_1" class="md-nav__link">
+    非阻塞 I/O
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#io_2" class="md-nav__link">
+    大文件 I/O
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#devfd" class="md-nav__link">
+    /dev/fd 目录
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    创建临时文件
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    习题
+  </a>
+  
+    <nav class="md-nav" aria-label="习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5-1" class="md-nav__link">
+    5-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-2" class="md-nav__link">
+    5-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-3" class="md-nav__link">
+    5-3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-4" class="md-nav__link">
+    5-4
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-5" class="md-nav__link">
+    5-5
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-6" class="md-nav__link">
+    5-6
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-7" class="md-nav__link">
+    5-7
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/panxiao81/learn-tlpi/edit/master/docs/chap5.md" title="编辑此页" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+<h1 id="cheaper-5-io">Cheaper 5-深入探究文件 I/O<a class="headerlink" href="#cheaper-5-io" title="Permanent link">&para;</a></h1>
+<h2 id="_1">词汇速查<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>原子性：atomicity</p>
+<p>竞争状态：race conditions</p>
+<h2 id="_2">笔记<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="_3">原子性<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>syscall 是以原子操作方式进行的，内核要保证某个系统调用的所有步骤会作为独立操作而一次性加以执行，期间不会为其他进程或线程中断。</p>
+<p>操作共享资源的两个进程或线程的结果取决与一个无法决定的顺序，即进程获得 CPU 使用权的先后相对顺序。</p>
+<p>当同时指定 <code>O_EXCL</code> 和 <code>O_CREAT</code> 标志位时，若打开的文件已存在，则程序会返回一个错误。这使检查文件是否存在和创建文件属于同一原子操作，保证了
+当前进程是文件的创建者，因为若在判断文件存在之后再次打开文件，若系统此时判断此进程的时间片已用完，将 CPU 时间分配给了其他进程并创建了该文件，则
+两个进程都将认为此文件为自己创建的。</p>
+<p>同样的，如果多个进程同时指向一个文件，并向结尾写入数据，此时也许会使用如下代码：</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">SEEK_END</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">errExit</span><span class="p">(</span><span class="s">&quot;lseek&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">len</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">fatal</span><span class="p">(</span><span class="s">&quot;Partial/failed Write&quot;</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>相似的，若第一个进程执行完 <code>lseek()</code> 后消耗完了时间片，被执行类似代码的另一个进程中断，则两个进程会在写入数据前将偏移量设置为相同位置，则可以
+看出，此时当原进程再次被调度时，会覆盖第二个进程已经写入的数据，此时又一次出现了竞争状态。要规避这个问题，应在打开文件时加入 <code>O_APPEND</code> 标志位
+，但对不支持 <code>O_APPEND</code> 的文件系统，内核会忽略 <code>O_APPEND</code>，按照传统的方式移动偏移量，因此仍可能导致脏写入问题。</p>
+<h3 id="fcntl">文件控制 fcntl()<a class="headerlink" href="#fcntl" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fcntl.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">fcntl</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">cmd</span><span class="w"> </span><span class="p">...);</span><span class="w"></span>
+</code></pre></div>
+<p>cmd 支持的操作很多，第三个参数可以设置为不同类型或省略，内核会根据 <code>cmd</code> 的值来确定后续参数的数据类型。</p>
+<p>用途之一是对一个打开的文件获取或修改访问模式和状态标志。</p>
+<p>要获取设置，将 <code>cmd</code> 设为 <code>F_GETFL</code></p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">,</span><span class="w"> </span><span class="n">accessMode</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">F_GETFL</span><span class="p">);</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">errExit</span><span class="p">(</span><span class="s">&quot;fnctl&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">if</span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">O_SYNC</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;writes are synchronized</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">accessMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">O_ACCMODE</span><span class="p">;</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">accessMode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">O_WRONLY</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">accessMode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">O_RDWR</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;file is writable</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>判断文件的访问模式需要让 <code>flags</code> 与 <code>O_ACCMODE</code> 相与，后与常量比对，其余直接相与判断即可。</p>
+<p>使用 <code>F_SETFL</code> 修改已打开文件的某些状态标志，允许修改的标志有</p>
+<ul>
+<li>O_APPEND</li>
+<li>O_NONBLOCK</li>
+<li>O_NOATIME</li>
+<li>O_ASYNC</li>
+<li>O_DIRECT</li>
+</ul>
+<p>其他标志位不允许修改，将被系统忽略。</p>
+<p>当文件不是被调用的程序打开时，或文件描述符的获取是由 <code>open()</code> 以外的方式获取的时候，这显得格外有用。</p>
+<p>先使用 <code>F_GETFL</code> 获取文件当前的状态，变更需要修改的比特位后再调用 <code>fcntl()</code> 的 <code>F_SETFL</code> 更新状态。</p>
+<p>例如，要增加 <code>O_APPEND</code> 使用如下代码</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">F_GETFL</span><span class="p">);</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">flags</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">errExit</span><span class="p">(</span><span class="s">&quot;fcntl&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="n">flags</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">O_APPEND</span><span class="p">;</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fcntl</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">F_SETFL</span><span class="p">,</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">errExit</span><span class="p">(</span><span class="s">&quot;fcntl&quot;</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<h3 id="_4">文件描述符和打开文件的关系<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>文件描述符和打开的文件并非一一对应的关系，多个文件描述符可能指向同一文件，这些文件描述符可能在相同或不同的进程中打开。</p>
+<p>内核维护三个数据结构</p>
+<ul>
+<li>进程级的文件描述符表</li>
+<li>系统级的打开文件表</li>
+<li>文件系统的 i-node 表</li>
+</ul>
+<p>对于每个进程，内核为其维护打开的文件描述符 (open file descriptor) 表，表的每一项都记录了单个文件描述符的相关信息。</p>
+<ul>
+<li>控制文件描述符的一组标志</li>
+<li>对打开文件句柄的引用</li>
+</ul>
+<p>对打开的文件，系统维护一个系统级的描述表格 (open file description table)，将表中的条目称为打开文件句柄 (open file handle)</p>
+<p>一个打开文件句柄存储了一个与打开文件相关的所有信息</p>
+<ul>
+<li>当前文件的偏移量</li>
+<li>打开文件时所使用的状态标志</li>
+<li>文件访问模式</li>
+<li>与信号驱动 I/O 相关的配置</li>
+<li>对该文件 i-node 对象的引用</li>
+</ul>
+<p>文件系统会为其上的文件维护 i-node 表，信息一般包括</p>
+<ul>
+<li>文件类型</li>
+<li>一个指向该文件所持有的锁的列表的指针</li>
+<li>包括文件大小以及不同类型操作相关的时间戳的各种文件属性</li>
+</ul>
+<p>两个不同的文件描述符，若指向同一个打开文件句柄，会共享同一个文件偏移量，而文件描述符标志为进程和文件描述符私有。</p>
+<p>何时需要复制文件描述符？考虑 Shell 的重定向语法 <code>2&gt;&amp;1</code>，将标准错误重定向至标准输出，因此考虑下列命令，将标准输出和标准错误写入文件中</p>
+<div class="highlight"><pre><span></span><code>./myscript &gt; result.log <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</code></pre></div>
+<p>注意 Shell 从左至右处理重定向语句。</p>
+<p>Shell 在此处将文件描述符 1 复制到文件描述符 2 实现了文件描述符的重定向，此时文件描述符 2 和 1 指向同一个文件句柄。</p>
+<p>在这种场景下，不能简单的打开两次文件，因两次打开生成两个不同的文件句柄，不会共享同一文件偏移量指针，导致可能互相覆盖对方的输出，其次打开的文件
+不一定是磁盘文件，也可能是管道或其他的文件。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">dup</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">oldfd</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p><code>dup()</code> 调用一个已经打开的文件描述符 oldfd，并返回一个新的描述符，二者指向同一个打开的文件句柄。系统保证新编号一定是编号最低的未用文件描述符。</p>
+<p>若假设当前已经打开 <code>0</code>，<code>1</code>，<code>2</code> 三个文件描述符，此时调用 <code>dup()</code> 会返回文件描述符 <code>3</code>。</p>
+<p>若希望返回 <code>2</code>，则可先关闭 <code>2</code>，再复制文件描述符。也可使用 <code>dup2()</code> 简化操作</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">dup2</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">oldfd</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">newfd</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p><code>dup2()</code> 复制 <code>oldfd</code> 参数指定的文件描述符，编号为 <code>newfd</code>。若 <code>newfd</code> 所指定的文件描述符已经打开，则 <code>dup2()</code> 会先关闭该文件描述符。</p>
+<p><code>dup2()</code> 会忽略 <code>newfd</code> 关闭期间发生的错误，最好提前显式关闭 <code>newfd</code>。</p>
+<p><code>oldfd</code> 若不存在，则 <code>dup2()</code> 失败并返回错误 <code>EBADF</code>，并且不关闭 <code>newfd</code>，若 <code>oldfd</code> 有效且与 <code>newfd</code> 相等，则 <code>dup2()</code> 什么都不做，
+且不关闭 <code>newfd</code>，并将其作为结果返回。</p>
+<p>也可使用 <code>fcntl()</code> 的 <code>F_DUPFD</code> 复制文件描述符</p>
+<div class="highlight"><pre><span></span><code><span class="n">newfd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fcntl</span><span class="p">(</span><span class="n">oldfd</span><span class="p">,</span><span class="w"> </span><span class="n">F_DUPFD</span><span class="p">,</span><span class="w"> </span><span class="n">startfd</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>将复制 <code>oldfd</code>，并将大于等于 <code>startfd</code> 的最小未用的值作为描述符编号。此调用可保证新的描述符落在特定的区域范围内。</p>
+<p>新的文件描述符有其自己的文件描述符标志，可使用 <code>dup3()</code> 在复制同时控制新文件描述符的文件描述符标志</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define _GNU_SOURCE</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">dup3</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">oldfd</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">newfd</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">flags</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p><code>dup3()</code> 为 Linux 特有</p>
+<h3 id="io">在文件特定偏移量的 I/O<a class="headerlink" href="#io" title="Permanent link">&para;</a></h3>
+<p>系统调用 <code>pread()</code> 和 <code>pwrite()</code> 完成与 <code>read()</code> 和 <code>write()</code> 相同的工作，只是可以指定文件偏移量，而非在当前偏移量处做 I/O 操作，且不
+改变当前偏移量。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">pread</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="kt">off_t</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span><span class="w"></span>
+
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">pwrite</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="kt">off_t</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>好处是，一方面，能够保证移动偏移量和读写操作是原子性的，另外比起先移动偏移量再写入要省去一部分系统调用带来的可忽略的性能提升。(但显然通常 I/O 
+的性能瓶颈都在设备 I/O 而非系统调用，I/O 的开销远大于系统调用)。</p>
+<p>对 <code>pread()</code> 和 <code>pwrite()</code> 而言，fd 指代的文件必须可定位，即允许对文件描述符执行 <code>lseek()</code> 操作。</p>
+<p>尤其在多线程编程时，此种方法为保证系统调用的原子性显然非常有帮助。</p>
+<h3 id="_5">分散输入和集中输出<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/uio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">readv</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">iovec</span><span class="w"> </span><span class="o">*</span><span class="n">iov</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">iovcnt</span><span class="p">);</span><span class="w"></span>
+
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">writev</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">iovec</span><span class="w"> </span><span class="o">*</span><span class="n">iov</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">iovcnt</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>这些函数可一次传输多个缓冲区的数据。</p>
+<p><code>iov</code> 定义了一组用来传输数据的缓冲区，整形数指定了 <code>iov</code> 的成员个数，<code>iov</code> 中的每个成员的数据结构如下</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">iovec</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">iov_base</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">iov_len</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</code></pre></div>
+<p><code>readv()</code> 实现了分散输入，从 <code>fd</code> 读一串连续的字节，然后将其散置于 <code>iov</code> 指定的缓冲区中。</p>
+<p><code>readv()</code> 的特点依然是保证原子性。</p>
+<p>调用 <code>readv()</code> 返回成功读区的字节数，若文件结束返回 <code>0</code>，调用者需对其返回值进行检查，若数据不足填满缓冲区，则只会占用部分缓冲区，最后一个缓冲
+区可能只有部分数据。</p>
+<p><code>writev()</code> 实现了集中输出。将 <code>iov</code> 中的内容拼接起来，以连续的字节序列写入文件描述符 <code>fd</code> 指代的文件中。</p>
+<p>显然 <code>writev()</code> 的操作是原子性的。</p>
+<p><code>writev()</code> 同样可能存在部分写的问题。</p>
+<p>现代 Linux 提供了 <code>preadv()</code> 和 <code>pwritev()</code> 可在特定偏移量处进行分散输入/集中输出的 I/O，虽然并非标准，但 BSD 支持该调用。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define _BSD_SOURCE</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/uio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">preadv</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">iovec</span><span class="w"> </span><span class="o">*</span><span class="n">iov</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">iovcnt</span><span class="p">,</span><span class="w"> </span><span class="kt">off_t</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span><span class="w"></span>
+
+<span class="kt">ssize_t</span><span class="w"> </span><span class="nf">pwritev</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">iovec</span><span class="w"> </span><span class="o">*</span><span class="n">iov</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">iovcnt</span><span class="p">,</span><span class="w"> </span><span class="kt">off_t</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<h3 id="_6">截断文件<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">truncate</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">pathname</span><span class="p">,</span><span class="w"> </span><span class="kt">off_t</span><span class="w"> </span><span class="n">length</span><span class="p">);</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">ftruncate</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="kt">off_t</span><span class="w"> </span><span class="n">length</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>若当前文件长度大于 <code>length</code>，则丢弃超出的部分，若小于 <code>length</code>，则在文件结尾添加空字节或文件空洞。</p>
+<h3 id="io_1">非阻塞 I/O<a class="headerlink" href="#io_1" title="Permanent link">&para;</a></h3>
+<p>若打开文件时指定 <code>O_NUNBLOCK</code>，则</p>
+<ul>
+<li>若 <code>open()</code> 未立即打开文件，则返回错误，而非陷入阻塞</li>
+<li>调用 <code>open()</code> 成功后的 I/O 操作也是非阻塞的，若 I/O 操作未立即完成，则可能只写入部分数据，并返回 <code>EAGAIN</code> 或 <code>EWOULDBLOCK</code> 错误。</li>
+</ul>
+<p>管道，FIFO，套接字，设备都支持非阻塞模式。</p>
+<p>由于内核缓冲区保证普通文件 I/O 不会阻塞，因此打开普通文件通常忽略 <code>O_NONBLOCK</code> 标志，但若使用强制文件锁时，该标志对普通文件也可用。</p>
+<h3 id="io_2">大文件 I/O<a class="headerlink" href="#io_2" title="Permanent link">&para;</a></h3>
+<p>通常 <code>off_t</code> 为 signed long 类型，但这样将文件大小限制在了 <span class="arithmatex">\(2^31-1\)</span> 即 2GB 大小。</p>
+<p>可使用支持大文件操作的备选 API 或将 <code>_FILE_OFFSET_BITS</code> 宏的值设为 64。</p>
+<p>若使用备选的过渡 API，则可使用原文件 I/O 函数的 64 位版本。即 <code>open64()</code>，<code>lseek64()</code> 等。</p>
+<p>更好的做法是在编译时将 <code>_FILE_OFFSET_BITS</code> 设为 64，此时所有 32 位函数和数据类型都将转换为 64 位版本。</p>
+<p>在 64 位系统上，<code>open64()</code> 和 <code>open()</code> 为同一个实现，且对应的函数已经为 64 位版本。</p>
+<p>对于 <code>printf()</code>,应将 <code>off_t</code> 强制转换为 <code>long long</code>，后使用 <code>%lld</code> 修饰符。</p>
+<h3 id="devfd">/dev/fd 目录<a class="headerlink" href="#devfd" title="Permanent link">&para;</a></h3>
+<p>对于每个进程，系统提供一个虚拟的目录 <code>/dev/fd</code>，该目录包含 <code>/dev/fd/n</code> 形式的文件名，其中 <code>n</code> 是打开的文件描述符相对应的编号。</p>
+<p>早期版本的 Linux 将该文件链接至 <code>/proc/self/fd</code> 中，现代 Linux 直接将其链接到文件本身。</p>
+<p>系统还提供了 3 个符号链接 <code>/dev/stdin</code>，<code>/dev/stdout</code> 和 <code>/dev/stderr</code>。早期链接到 <code>/dev/fd</code>，现在链接到 <code>/proc/self/fd/</code></p>
+<h3 id="_7">创建临时文件<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">mkstemp</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">template</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p><code>mkstemp()</code> 生成一个唯一的文件名并打开该文件，返回一个文件描述符。</p>
+<p>参数 <code>template</code> 采用路径名形式，其中最后 6 个字符必须是 <code>XXXXXX</code>,这 6 个字符会被替换，且修改后的文件名会通过 <code>template</code> 传回，因此 
+<code>template</code> 必须是一个字符数组，而不能是一个字符常量。</p>
+<p>文件拥有者对 <code>mkstemp()</code> 建立的文件拥有读写权限，其他用户没有任何权限，且打开文件使用 <code>O_EXCL</code> 参数，保证调用者独占访问文件。</p>
+<p>通常，在创建临时文件后，程序就应使用 <code>unlink()</code> 将其删除。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="nf">tmpfile</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p><code>tmpfile()</code> 创建一个名称唯一的临时文件，并以读写方式打开，成功将返回一个文件流供 <code>stdio</code> 使用，文件流关闭后将自动删除临时文件，为达到该目的
+，<code>tmpfile()</code> 函数将在打开文件后立即调用 <code>unlink()</code> 来删除文件。</p>
+<h2 id="_8">习题<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h3 id="5-1">5-1<a class="headerlink" href="#5-1" title="Permanent link">&para;</a></h3>
+<p>code: c5/large_file.c</p>
+<p>就是改代码，没什么好说的。</p>
+<h3 id="5-2">5-2<a class="headerlink" href="#5-2" title="Permanent link">&para;</a></h3>
+<p>code: c5/append_exists.c</p>
+<p>在使用 <code>O_APPEND</code> 方式打开文件时，尽管设置偏移量为 <code>0</code>，仍然会向文件中追加写入。</p>
+<h3 id="5-3">5-3<a class="headerlink" href="#5-3" title="Permanent link">&para;</a></h3>
+<p>code: c5/atomic_append.c</p>
+<p>运行结果如下：</p>
+<div class="highlight"><pre><span></span><code>$ ls -l
+总用量 <span class="m">3164</span>
+-rwxrwxr-x <span class="m">1</span> panxiao81 panxiao81   <span class="m">31072</span>  5月 <span class="m">27</span> <span class="m">19</span>:12 append_exists
+-rw-rw-r-- <span class="m">1</span> panxiao81 panxiao81    <span class="m">1492</span>  5月 <span class="m">27</span> <span class="m">18</span>:58 append_exists.c
+-rwxrwxr-x <span class="m">1</span> panxiao81 panxiao81   <span class="m">31992</span>  5月 <span class="m">27</span> <span class="m">19</span>:41 atomic_append
+-rw-rw-r-- <span class="m">1</span> panxiao81 panxiao81    <span class="m">1843</span>  5月 <span class="m">27</span> <span class="m">19</span>:41 atomic_append.c
+-rw------- <span class="m">1</span> panxiao81 panxiao81 <span class="m">2000000</span>  5月 <span class="m">27</span> <span class="m">19</span>:42 f1
+-rw------- <span class="m">1</span> panxiao81 panxiao81 <span class="m">1121998</span>  5月 <span class="m">27</span> <span class="m">19</span>:42 f2
+-rwxrwxr-x <span class="m">1</span> panxiao81 panxiao81   <span class="m">29552</span>  5月 <span class="m">27</span> <span class="m">19</span>:13 large_file
+-rw-rw-r-- <span class="m">1</span> panxiao81 panxiao81    <span class="m">1375</span>  5月 <span class="m">25</span> <span class="m">02</span>:15 large_file.c
+-rw-rw-r-- <span class="m">1</span> panxiao81 panxiao81     <span class="m">298</span>  5月 <span class="m">27</span> <span class="m">18</span>:46 Makefile
+</code></pre></div>
+<p>可以看到 f1 明显比 f2 大的多。</p>
+<p>由于不能保证无 <code>O_APPEND</code> 时操作的原子性，因此在两个进程同时写入时，对于 f2 的情况写入的数据互相覆盖，导致了出现此情况。</p>
+<h3 id="5-4">5-4<a class="headerlink" href="#5-4" title="Permanent link">&para;</a></h3>
+<p>code: c5/dup.c</p>
+<p>对于 <code>dup()</code> 可以使用 <code>fnctl(oldfd, F_DUPFD, 0)</code>，<code>dup2()</code> 可以改写为 <code>fcntl(oldfd, F_DUPFD, newfd)</code>，剩下的只需要做好错误处理就可以了。</p>
+<p>注意，根据 dup(2) 所说:</p>
+<blockquote>
+<p>The  steps  of  closing and reusing the file descriptor newfd are performed atomically.</p>
+</blockquote>
+<p>也就是说，使用系统调用 <code>dup2()</code> 可以保证关闭 <code>newfd</code> 和再次打开 <code>newfd</code> 是有原子性的，这点在我们自己实现的版本中是无法做到的。</p>
+<p>源码中的 <code>main()</code> 只是为了通过编译而已，我没有写测试，因为我觉得他大概是能正常工作的。</p>
+<h3 id="5-5">5-5<a class="headerlink" href="#5-5" title="Permanent link">&para;</a></h3>
+<p>code: c5/check_descriptor.c</p>
+<p>由于题目说明非常简略，代码也写的非常简略。</p>
+<p>由于只是要查看是否共享，我只进行了简单的判断是否相等。</p>
+<h3 id="5-6">5-6<a class="headerlink" href="#5-6" title="Permanent link">&para;</a></h3>
+<p>可见，fd2 由 fd1 复制而来，共享同一偏移量，fd3 是另一份打开的文件，单独维护一份偏移量</p>
+<p>第一次：<code>Hello,</code></p>
+<p>第二次：<code>Hello,world</code> 由于共享同一偏移量，且文件偏移量随 <code>write()</code> 后移</p>
+<p>第三次：由于 <code>lseek()</code> 将偏移量移动回文件开头，再次写入覆盖了过去的文字，现在内容为 <code>HELLO,world</code></p>
+<p>第四次：fd3 的文件偏移量一直在开头，因此覆盖了原有文字，内容为 <code>Gidday world</code></p>
+<h3 id="5-7">5-7<a class="headerlink" href="#5-7" title="Permanent link">&para;</a></h3>
+<p>code: c5/readv_writev.c</p>
+<p>为保证原子性，对于读入的操作，需要得知总的缓冲区大小，分配一段临时的 buffer 将信息一次性读入，再分开写入给定的缓冲区。对写入操作也同理，需要先将给定的缓冲区写入到临时分配的大缓冲区，之后一次性对整个大缓冲区进行写入操作。</p>
+<p>对于内存内容的拷贝操作，很容易想到可以使用 <code>memcpy()</code> 来实现。大缓冲区的操作也只需要根据 <code>iov_len</code> 计算偏移量即可。</p>
+<p>这里需要注意的是，对于读入缓冲区，需要判断读入的字节数中尚未写入的大小与当前块的缓冲区大小，若尚未写入的数据大小小于当前缓冲区的大小，则可判断写完当前剩余的数据即可结束并返回。</p>
+<p><code>readv()</code> 不会保证当读到的数据未占满缓冲区时剩余的缓冲区内的数据，因此这种实现是完全合理的。</p>
+<p>这段代码我同样没有经过完整测试，<code>main()</code> 函数存在仍同样只是为了能通过编译。</p>
+
+
+
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="页脚" >
+      
+        
+        <a href="../chap4/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第四章-文件 I/O：通用的 I/O 模型" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              第四章-文件 I/O：通用的 I/O 模型
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../chap6/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第六章-进程" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              第六章-进程
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\s\\-\uff0c\u3002]+", "search.placeholder": "\u641c\u7d22", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version.title": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9c69f0bc.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

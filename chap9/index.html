@@ -1,0 +1,994 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1">
+    
+    
+      
+        <title>第九章-进程凭证 - TLPI 笔记</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.69437709.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cheaper-9" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="TLPI 笔记" class="md-header__button md-logo" aria-label="TLPI 笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TLPI 笔记
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第九章-进程凭证
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/panxiao81/learn-tlpi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    panxiao81/learn-tlpi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="TLPI 笔记" class="md-nav__button md-logo" aria-label="TLPI 笔记" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    TLPI 笔记
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/panxiao81/learn-tlpi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    panxiao81/learn-tlpi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        README
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../environment-preparing/" class="md-nav__link">
+        环境
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap3/" class="md-nav__link">
+        第三章-系统编程概念
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap4/" class="md-nav__link">
+        第四章-文件 I/O：通用的 I/O 模型
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap5/" class="md-nav__link">
+        第五章-深入探究文件 I/O
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap6/" class="md-nav__link">
+        第六章-进程
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap7/" class="md-nav__link">
+        第七章-内存分配
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap8/" class="md-nav__link">
+        第八章-用户和组
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          第九章-进程凭证
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        第九章-进程凭证
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    词汇速查
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    笔记
+  </a>
+  
+    <nav class="md-nav" aria-label="笔记">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uid-gid" class="md-nav__link">
+    实际 UID 和 实际 GID
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uid-gid_1" class="md-nav__link">
+    有效 UID 和有效 GID
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-user-id-set-group-id" class="md-nav__link">
+    set-user-id 和 set-group-id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-user-id-set-group-id_1" class="md-nav__link">
+    保存 set-user-id 和 保存 set-group-id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uid-gid_2" class="md-nav__link">
+    文件系统 UID 和 GID
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#id" class="md-nav__link">
+    辅助组 ID
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    获取和修改进程凭证
+  </a>
+  
+    <nav class="md-nav" aria-label="获取和修改进程凭证">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setuid" class="md-nav__link">
+    获取和修改实际、有效和保存 setUID
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    习题
+  </a>
+  
+    <nav class="md-nav" aria-label="习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-1" class="md-nav__link">
+    9-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-2" class="md-nav__link">
+    9-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-3" class="md-nav__link">
+    9-3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-4" class="md-nav__link">
+    9-4
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-5" class="md-nav__link">
+    9-5
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chap10/" class="md-nav__link">
+        第十章-时间
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    词汇速查
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    笔记
+  </a>
+  
+    <nav class="md-nav" aria-label="笔记">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uid-gid" class="md-nav__link">
+    实际 UID 和 实际 GID
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uid-gid_1" class="md-nav__link">
+    有效 UID 和有效 GID
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-user-id-set-group-id" class="md-nav__link">
+    set-user-id 和 set-group-id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-user-id-set-group-id_1" class="md-nav__link">
+    保存 set-user-id 和 保存 set-group-id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uid-gid_2" class="md-nav__link">
+    文件系统 UID 和 GID
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#id" class="md-nav__link">
+    辅助组 ID
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    获取和修改进程凭证
+  </a>
+  
+    <nav class="md-nav" aria-label="获取和修改进程凭证">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setuid" class="md-nav__link">
+    获取和修改实际、有效和保存 setUID
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    习题
+  </a>
+  
+    <nav class="md-nav" aria-label="习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#9-1" class="md-nav__link">
+    9-1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-2" class="md-nav__link">
+    9-2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-3" class="md-nav__link">
+    9-3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-4" class="md-nav__link">
+    9-4
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-5" class="md-nav__link">
+    9-5
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/panxiao81/learn-tlpi/edit/master/docs/chap9.md" title="编辑此页" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+<h1 id="cheaper-9">Cheaper 9 进程凭证<a class="headerlink" href="#cheaper-9" title="Permanent link">&para;</a></h1>
+<h2 id="_1">词汇速查<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ul>
+<li>特权级进程: privileged process</li>
+<li>辅助组: supplementary group</li>
+</ul>
+<h2 id="_2">笔记<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>**每个进程**都有一套 UID 和 GID，这些 ID 被称为进程凭证。</p>
+<p>包括如下：</p>
+<ul>
+<li>实际用户 ID (real user ID) 和 实际组 ID (real group ID)</li>
+<li>有效用户 ID (effective user ID) 和 有效组 ID (effective group ID)</li>
+<li>保存的 set-user-id (saved set-user-id) 和 保存的 set-group-id (saved set-group-id)</li>
+<li>文件系统用户 ID (file-system user ID) 和 文件系统组 ID (file-system group id) (此为 Linux 专有特性)</li>
+<li>辅助组 ID</li>
+</ul>
+<h3 id="uid-gid">实际 UID 和 实际 GID<a class="headerlink" href="#uid-gid" title="Permanent link">&para;</a></h3>
+<p>实际用户和组 ID 即进程所属的用户和组。当用户登录时，登录 Shell 从密码文件中读取相应的用户密码记录的第三子段和第四子段 (即 UID 子段和 GID 子段)，置为实际用户 ID 和组 ID。当创建新进程时将从父进程中继承该值。</p>
+<h3 id="uid-gid_1">有效 UID 和有效 GID<a class="headerlink" href="#uid-gid_1" title="Permanent link">&para;</a></h3>
+<p>当进程执行各种操作时，将结合有效用户 ID，有效组 ID 和辅助组 ID 来共同确定赋予进程的权限。</p>
+<p>有效 ID 为 0 的进程拥有超级用户的所有权限，这种进程称为特权级进程。某些系统调用仅支持特权用户运行。</p>
+<p>通常有效用户和组 ID 与实际用户和组 ID 相等，但可以通过 syscall 或 set-user-ID 和 set-group-ID 来改变。</p>
+<h3 id="set-user-id-set-group-id">set-user-id 和 set-group-id<a class="headerlink" href="#set-user-id-set-group-id" title="Permanent link">&para;</a></h3>
+<p>set-user-ID (即 setuid) 将把进程的有效用户 ID 置为可执行文件的 UID，从而获得常规情况下不具有的权限，set-group-ID (即 setGID) 将进程的有效 GID 置为可执行文件的 GID。</p>
+<p>每个文件都具有额外的 setUID 和 setGID 位，可通过 chmod(1) 来设置。非特权用户仅能对用户本身拥有的程序设置，特权用户或具有特定权限的用户 (CAP_FOWNER) 能对任何文件进行设置。</p>
+<div class="highlight"><pre><span></span><code>chmod u+s prog
+chmod g+s prog
+</code></pre></div>
+<p>在 Linux 中 setUID 和 setGID 对 Shell 脚本无效。</p>
+<p>常见的 setUID 程序有 <code>passwd(1)</code> 用于修改用户密码，<code>mount(8)</code> 和 <code>umount(8)</code> 用于挂载和卸载文件系统，<code>su(1)</code> 允许用户以另一用户的身份运行 Shell，以及 <code>sudo(1)</code> 实用程序，用于将命令临时提权执行。</p>
+<p>常见的 setGID 程序有 <code>wall(1)</code>，用于向 tty 组下的所有终端发送消息。</p>
+<p>setUID 特性和 setGID 特性若使用不当可能造成安全隐患。</p>
+<h3 id="set-user-id-set-group-id_1">保存 set-user-id 和 保存 set-group-id<a class="headerlink" href="#set-user-id-set-group-id_1" title="Permanent link">&para;</a></h3>
+<p>该设计用于和 setUID 和 setGID 结合使用。当执行程序时会发生以下事件：</p>
+<ul>
+<li>若可执行文件的 setUID 或 setGID 权限已开启，则将进程的有效 UID 或有效 GID 置为可执行文件的所属。若未设置 setUID 或 setGID 则保持不变</li>
+<li>保存 setUID 或 保存 setGID 的值由有效 ID 复制而来，无论程序是否指定 setUID 或 setGID 该复制都将进行。</li>
+</ul>
+<p>即：</p>
+<p>假设某进程的实际 UID，有效 UID 和 setUID 均为 1000，当其运行了 root 用户拥有的 setUID 程序后，进程的 UID 如下</p>
+<div class="highlight"><pre><span></span><code><span class="nv">real</span><span class="o">=</span><span class="m">1000</span>, <span class="nv">effective</span><span class="o">=</span><span class="m">0</span>, <span class="nv">saved</span><span class="o">=</span><span class="m">0</span>
+</code></pre></div>
+<p>该特性使程序具有了在拥有特权的用户和不具有特权的用户间来回切换的能力，因为存在转换状态的 syscall。</p>
+<h3 id="uid-gid_2">文件系统 UID 和 GID<a class="headerlink" href="#uid-gid_2" title="Permanent link">&para;</a></h3>
+<p>在 Linux 中执行打开文件，改变文件所属，修改文件权限之类的操作时，决定权限的时文件系统 UID 和文件系统 GID。</p>
+<p>通常来说，修改有效 UID 和 有效 GID 时，文件系统 UID 和文件系统 GID 也会跟随绑定变化，仅在使用 Linux 特有的 <code>setfsuid()</code> 和 <code>setfsgid()</code> 时，才有所不同。</p>
+<p>该设计是解决一些历史问题而存在的，现如今已经几乎没有存在价值。多数时候无需对此进行判断。</p>
+<h3 id="id">辅助组 ID<a class="headerlink" href="#id" title="Permanent link">&para;</a></h3>
+<p>辅助组 ID 用于标识进程所属的若干附加组。</p>
+<h3 id="_3">获取和修改进程凭证<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>Linux 提供了一系列 syscall，SUSv3 仅对其中一部分做了规范，还有一些在 UNIX 中得到广泛应用，还有一些是 Linux 特有的。</p>
+<p>可通过 <code>/proc/PID/status</code> 检查其中的 <code>Uid</code>，<code>Gid</code>，<code>Groups</code> 的检查获取进程凭证。</p>
+<h4 id="setuid">获取和修改实际、有效和保存 setUID<a class="headerlink" href="#setuid" title="Permanent link">&para;</a></h4>
+<p>能完成此操作的系统调用有多种，其中有些功能重叠，由于其源于不同的 UNIX 实现。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">uid_t</span><span class="w"> </span><span class="nf">getuid</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"> </span><span class="cm">/* return real user ID of calling process */</span><span class="w"></span>
+<span class="kt">uid_t</span><span class="w"> </span><span class="nf">geteuid</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"> </span><span class="cm">/* return effective user ID of calling process */</span><span class="w"></span>
+<span class="kt">gid_t</span><span class="w"> </span><span class="nf">getgid</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span>
+<span class="kt">gid_t</span><span class="w"> </span><span class="nf">getegid</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p><code>getuid()</code> 和 <code>getgid()</code> 返回调用进程的实际 UID 和 GID，而 <code>geteuid()</code> 和 <code>getegid()</code> 返回调用进程的有效 UID 和 GID。</p>
+<p>以上函数总是成功。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">setuid</span><span class="p">(</span><span class="kt">uid_t</span><span class="w"> </span><span class="n">uid</span><span class="p">);</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">setgid</span><span class="w"> </span><span class="p">(</span><span class="kt">gid_t</span><span class="w"> </span><span class="n">gid</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>调用该函数时，对进程是否具有特权，规则如下：</p>
+<ul>
+<li>若非特权用户调用 <code>setuid()</code>，仅能修改进程的有效用户 ID，且仅能将有效用户 ID 修改为相应的实际用户 ID 或保存 UID。即对非特权用户而言仅在运行 setUID 程序时才能使用该函数。</li>
+<li>当特权用户用非 0 参数调用 <code>setuid()</code> 时，实际 UID，有效 UID 和保存 UID 都将被置为 uid 参数指定的值，即特权用户若调用该函数修改了 UID，则会丢失所有特权，且之后也不能使用 <code>setuid()</code> 将权限设为 0。</li>
+</ul>
+<p>例如，若要让 setUID 程序放弃 root 权限，则可以使用下列代码：</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">setuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">())</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">errExit</span><span class="p">(</span><span class="s">&quot;setuid);</span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<p>若 setUID 的程序属主非 root 用户，则可使用上述调用在实际用户 ID 和保存 setUID 间切换。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">seteuid</span><span class="p">(</span><span class="kt">uid_t</span><span class="w"> </span><span class="n">euid</span><span class="p">);</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">setegid</span><span class="p">(</span><span class="kt">gid_t</span><span class="w"> </span><span class="n">egid</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>使用 seteuid() 和 setegid() 可使进程的有效 UID 或 GID 修改为参数 euid 或 egid 指定的值。</p>
+<p>其遵循以下规则：</p>
+<ul>
+<li>非特权用户仅能将有效 UID 和 GID 修改为相应的实际 ID 或保存 set ID 值。即等效于 setuid() 调用。</li>
+<li>特权用户可将有效 ID 修改为任意值，若特权进程将有效 UID 修改为非特权，即非 0 值，则当前进程不再具有特权，但可通过规则 1 恢复特权。</li>
+</ul>
+<p>即：</p>
+<div class="highlight"><pre><span></span><code><span class="n">euid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">geteuid</span><span class="p">();</span><span class="w">  </span><span class="cm">/* Save initial effective UID which is the same as saved setUID */</span><span class="w"></span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">seteuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">())</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="cm">/* Drop privileges */</span><span class="w"></span>
+<span class="w">    </span><span class="n">errExit</span><span class="p">(</span><span class="s">&quot;seteuid&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">seteuid</span><span class="p">(</span><span class="n">euid</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="cm">/* Regain privileges */</span><span class="w"></span>
+<span class="w">    </span><span class="n">errExit</span><span class="p">(</span><span class="s">&quot;seteuid);</span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">setreuid</span><span class="p">(</span><span class="kt">uid_t</span><span class="w"> </span><span class="n">ruid</span><span class="p">,</span><span class="w"> </span><span class="kt">uid_t</span><span class="w"> </span><span class="n">euid</span><span class="p">);</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">setregid</span><span class="p">(</span><span class="kt">gid_t</span><span class="w"> </span><span class="n">rgid</span><span class="p">,</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="n">egid</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>以上系统调用允许调用进程独立修改其实际和有效 UID 和 GID。其中 <code>ruid</code> 指新的实际 UID，<code>euid</code> 指新的有效 UID。若想只修改其中一个，可将另一参数指定为 <code>-1</code>。</p>
+<p>规则如下：</p>
+<ul>
+<li>非特权进程只能将实际 UID 设置为当前用户的实际 UID (即保持不变) 或有效 UID 值，只能将有效 UID 设置为当前用户的实际 UID，有效 UID (即保持不变)，或保存 setUID</li>
+<li>特权进程能够将实际 UID 和有效 UID 设置为任何值。</li>
+<li>无论进程是否拥有特权，只要下列条件有一条成立，则保存 setUID 会被设置为有效 UID 的值</li>
+<li><code>ruid</code> 不为 <code>-1</code> （即实际 UID 需要有一个设置，即便是设为当前值)</li>
+<li>对有效 UID 设置的值不同于系统调用之前的实际 UID</li>
+</ul>
+<p>即，若进程使用 <code>setreuid()</code> 只将有效 UID 修改为实际 UID 的当前值，则保存 setUID 的值将保持不变。同时由于规则 3，若进程想放弃特权，则可以执行：</p>
+<div class="highlight"><pre><span></span><code><span class="n">setreuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">(),</span><span class="w"> </span><span class="n">getuid</span><span class="p">());</span><span class="w"></span>
+</code></pre></div>
+<p>若 setUID root 的进程需要将进程凭证改为其他任意值，则需要先修改 GID 后再修改 UID，否则由于修改 UID 后进程已经丧失特权，后续调用 <code>setregid()</code> 将由于没有特权而失败。</p>
+<p>在多数 UNIX 实现中，进程不能直接获取保存 setUID 和 setGID，但 Linux 提供了两个非标准的系统调用实现该功能。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define _GNU_SOURCE</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">getresuid</span><span class="p">(</span><span class="kt">uid_t</span><span class="w"> </span><span class="o">*</span><span class="n">ruid</span><span class="p">,</span><span class="w"> </span><span class="kt">uid_t</span><span class="w"> </span><span class="o">*</span><span class="n">euid</span><span class="p">,</span><span class="w"> </span><span class="kt">uid_t</span><span class="w"> </span><span class="o">*</span><span class="n">suid</span><span class="p">);</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">getresgid</span><span class="p">(</span><span class="kt">gid_t</span><span class="w"> </span><span class="o">*</span><span class="n">rgid</span><span class="p">,</span><span class="w"> </span><span class="kt">uid_t</span><span class="w"> </span><span class="o">*</span><span class="n">egid</span><span class="p">,</span><span class="w"> </span><span class="kt">uid_t</span><span class="w"> </span><span class="o">*</span><span class="n">sgid</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>该函数将实际 UID，有效 UID 和保存 setUID 返回给指定 3 个参数所指定的位置，若成功返回 0，否则返回 -1.</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define _GNU_SOURCE</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">setresuid</span><span class="p">(</span><span class="kt">uid_t</span><span class="w"> </span><span class="n">ruid</span><span class="p">,</span><span class="w"> </span><span class="kt">uid_t</span><span class="w"> </span><span class="n">euid</span><span class="p">,</span><span class="w"> </span><span class="kt">uid_t</span><span class="w"> </span><span class="n">suid</span><span class="p">);</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">setresgid</span><span class="p">(</span><span class="kt">gid_t</span><span class="w"> </span><span class="n">rgid</span><span class="p">,</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="n">egid</span><span class="p">,</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="n">sgid</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>以上系统调用允许进程独立修改 3 个 UID 的值，若不想同时修改所有 ID，则将对应不修改的子段设为 -1。</p>
+<p>该系统调用的规则如下：</p>
+<ul>
+<li>非特权用户能够将实际用户 ID，有效用户 ID 和保存 setUID 中的任一 ID 设置为当前值。</li>
+<li>特权用户可以设置为任何值</li>
+<li>不管系统调用是否对其他 ID 做了任何改动，总是将文件系统 ID 设置为与有效 ID 相同的值。</li>
+</ul>
+<p>该调用要么全部成功，要么全部失败。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/fsuid.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">setfsuid</span><span class="p">(</span><span class="kt">uid_t</span><span class="w"> </span><span class="n">fsuid</span><span class="p">);</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">setfsgid</span><span class="p">(</span><span class="kt">gid_t</span><span class="w"> </span><span class="n">fsgid</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>以上系统调用可以独立修改文件系统 ID。规则如下：</p>
+<ul>
+<li>非特权进程能将文件系统 ID 设置为实际 ID，有效 ID，文件系统 ID (即保持不变) 或 set ID 的当前值</li>
+<li>特权用户可以设定为任何值</li>
+</ul>
+<p>该函数永远成功，他缺少错误检查，函数返回修改过的文件系统 ID，即如果将文件系统 ID 设置成一个非法的值，他会返回之前的文件系统 ID。由于缺少获取文件系统 ID 的系统调用，因此这是一种获取当前文件系统 ID 的方法。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">getgroups</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">gidsetsize</span><span class="p">,</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="n">grouplist</span><span class="p">[]);</span><span class="w"></span>
+</code></pre></div>
+<p>调用程序需要负责为该系统调用中的 <code>grouplist[]</code> 数组分配空间，并在 <code>gidsetsize</code> 中指定长度。若调用成功，函数返回置于数组中的 GID 数量。</p>
+<p>若进程属组的数量超过 <code>gidseisize</code>，则该系统调用返回错误 <code>EINVAL</code>，<code>grouplist[]</code> 的大小可定义为常量 <code>NGROUPS_MAX+1</code>，该常量定义了进程属组的最大数量，其定义在 <code>limits.h</code> 中。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">gid_t</span><span class="w"> </span><span class="n">grouplist</span><span class="p">[</span><span class="n">NGROUPS_MAX</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+</code></pre></div>
+<p>另外，可将 <code>gidsetsize</code> 指定为 0，这样一来数组未做修改，但函数会返回进程属组的数量。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#define _BSD_SOURCE</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;grp.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">setgroups</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">gidsetsize</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="o">*</span><span class="n">grouplist</span><span class="p">);</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">initgroups</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="kt">gid_t</span><span class="w"> </span><span class="n">group</span><span class="p">);</span><span class="w"></span>
+</code></pre></div>
+<p>特权级应用可通过上述系统调用修改辅助组 ID 集合。</p>
+<p><code>setgroups()</code> 用 <code>grouplist</code> 所指数组替换调用进程的辅助组 ID，<code>gidsetsize</code> 指定了数组中 GID 的数量。</p>
+<p><code>initgroups()</code> 会扫描 <code>/etc/groups</code> 文件，为 user 创建属组列表，以此来初始化调用进程的辅助组 ID，同时也会将 <code>group</code> 参数指定的组加入到辅助组 ID 的集合中。</p>
+<h2 id="_4">习题<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="9-1">9-1<a class="headerlink" href="#9-1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>a: real=2000, effective=2000, saved=2000, file-system=2000</li>
+<li>b: real=1000, effective=2000, saved=2000, file-system=2000</li>
+<li>c: real=1000, effective=2000, saved=0 file-system=2000</li>
+<li>d: real=1000, effective=0, saved=0, file-system=2000</li>
+<li>e: real=1000, effective=2000, saved=3000, file-system=2000</li>
+</ul>
+<h3 id="9-2">9-2<a class="headerlink" href="#9-2" title="Permanent link">&para;</a></h3>
+<p>该进程当前没有特权，但可以通过 <code>seteuid()</code> 系统调用重新获取特权。</p>
+<h3 id="9-3">9-3<a class="headerlink" href="#9-3" title="Permanent link">&para;</a></h3>
+<p>code: c9/initgroups.c</p>
+<p>由于 setgroups() 需要特权，此程序需要 root 运行。</p>
+<p>程序的 main() 写死了判断 UID=1000，运行程序前确认系统上存在 UID=1000 的账号。</p>
+<h3 id="9-4">9-4<a class="headerlink" href="#9-4" title="Permanent link">&para;</a></h3>
+<p>参考书后答案。</p>
+<div class="highlight"><pre><span></span><code><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">geteuid</span><span class="p">();</span><span class="w"></span>
+
+<span class="n">setuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">());</span><span class="w"> </span><span class="cm">/* Suspend privileges */</span><span class="w"></span>
+<span class="n">setuid</span><span class="p">(</span><span class="n">e</span><span class="p">);</span><span class="w"> </span><span class="cm">/* Resume privileges */</span><span class="w"></span>
+<span class="cm">/* Can&#39;t permanently drop the setUID with setuid() */</span><span class="w"></span>
+
+<span class="n">seteuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">());</span><span class="w"> </span><span class="cm">/* Suspend privileges */</span><span class="w"></span>
+<span class="n">seteuid</span><span class="p">(</span><span class="n">e</span><span class="p">);</span><span class="w"> </span><span class="cm">/* Resume privileges */</span><span class="w"></span>
+<span class="cm">/* Can&#39;t permanently drop the setUID with seteuid() */</span><span class="w"></span>
+
+<span class="n">setreuid</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">getuid</span><span class="p">());</span><span class="w"></span>
+<span class="n">setreuid</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span><span class="w"></span>
+<span class="n">setreuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">(),</span><span class="w"> </span><span class="n">getuid</span><span class="p">());</span><span class="w"></span>
+
+<span class="n">setresuid</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">getuid</span><span class="p">(),</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span><span class="w"></span>
+<span class="n">setresuid</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span><span class="w"></span>
+<span class="n">setresuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">(),</span><span class="w"> </span><span class="n">getuid</span><span class="p">(),</span><span class="w"> </span><span class="n">getuid</span><span class="p">());</span><span class="w"></span>
+</code></pre></div>
+<h3 id="9-5">9-5<a class="headerlink" href="#9-5" title="Permanent link">&para;</a></h3>
+<p>同参考书后答案</p>
+<div class="highlight"><pre><span></span><code><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">geteuid</span><span class="p">();</span><span class="w"></span>
+
+<span class="cm">/* Can&#39;t suspend and resume privileges with setuid() */</span><span class="w"></span>
+<span class="n">setuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">());</span><span class="w"></span>
+
+<span class="n">seteuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">());</span><span class="w"> </span><span class="cm">/* Suspend privileges */</span><span class="w"></span>
+<span class="n">seteuid</span><span class="p">(</span><span class="n">e</span><span class="p">);</span><span class="w"> </span><span class="cm">/* Resume privileges */</span><span class="w"></span>
+<span class="cm">/* Can&#39;t permanently drop the setUID with seteuid() */</span><span class="w"></span>
+
+<span class="n">setreuid</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">getuid</span><span class="p">());</span><span class="w"></span>
+<span class="n">setreuid</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span><span class="w"></span>
+<span class="n">setreuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">(),</span><span class="w"> </span><span class="n">getuid</span><span class="p">());</span><span class="w"></span>
+
+<span class="n">setresuid</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">getuid</span><span class="p">(),</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span><span class="w"></span>
+<span class="n">setresuid</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span><span class="w"></span>
+<span class="n">setresuid</span><span class="p">(</span><span class="n">getuid</span><span class="p">(),</span><span class="w"> </span><span class="n">getuid</span><span class="p">(),</span><span class="w"> </span><span class="n">getuid</span><span class="p">());</span><span class="w"></span>
+</code></pre></div>
+
+
+
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="页脚" >
+      
+        
+        <a href="../chap8/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第八章-用户和组" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              第八章-用户和组
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../chap10/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第十章-时间" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              第十章-时间
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\s\\-\uff0c\u3002]+", "search.placeholder": "\u641c\u7d22", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version.title": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.9c69f0bc.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
